@@ -41,5 +41,5 @@ export function isTokenValid(token: string): boolean {
 }
 
 export function setAuthCookie(token: string): void {
-  document.cookie = `auth-token=${token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
+  document.cookie = `token=${token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
 }
