@@ -14,7 +14,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   type FilterValues,
   type FilterableStatus,
@@ -23,13 +22,11 @@ import {
 import { STATUS_OPTIONS } from "@/lib/constants";
 
 type TransactionFilterProps = {
-  search: string;
   status: FilterableStatus;
-  onFilterChangeAction: (search: string, status: FilterableStatus) => void;
+  onFilterChangeAction: (status: FilterableStatus) => void;
 };
 
 export function TransactionFilter({
-  search,
   status,
   onFilterChangeAction,
 }: TransactionFilterProps) {
@@ -37,26 +34,26 @@ export function TransactionFilter({
 
   const form = useForm<FilterValues>({
     resolver: zodResolver(filterSchema),
-    defaultValues: { search, status },
+    defaultValues: { status },
   });
 
   function onSubmit(values: FilterValues) {
-    onFilterChangeAction(values.search, values.status);
+    onFilterChangeAction(values.status);
     setOpen(false);
   }
 
   function handleReset() {
-    form.reset({ search: "", status: "" });
-    onFilterChangeAction("", "");
+    form.reset({ status: "" });
+    onFilterChangeAction("");
     setOpen(false);
   }
 
-  const hasFilter = search !== "" || status !== "";
+  const hasFilter = status !== "";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2 cursor-pointer">
           <SlidersHorizontal className="h-4 w-4" />
           Filter
           {hasFilter && (
@@ -72,20 +69,6 @@ export function TransactionFilter({
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
-            <Controller
-              name="search"
-              control={form.control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel htmlFor="filter-search">Nama Pengirim</FieldLabel>
-                  <Input
-                    {...field}
-                    id="filter-search"
-                    placeholder="Cari nama pengirim..."
-                  />
-                </Field>
-              )}
-            />
             <Controller
               name="status"
               control={form.control}
@@ -108,7 +91,7 @@ export function TransactionFilter({
             />
           </FieldGroup>
           <DialogFooter className="mt-4 gap-2">
-            <Button type="button" variant="ghost" onClick={handleReset}>
+            <Button type="button" variant="outline" onClick={handleReset}>
               Reset
             </Button>
             <Button type="submit">Terapkan</Button>

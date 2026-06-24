@@ -5,7 +5,6 @@ import { useGetTransactions } from "@/hooks/useTransactions";
 import { useFilters } from "@/hooks/useFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { TransactionTable } from "@/components/pages/transaction/table/TransactionTable";
-import { TransactionFilter } from "@/components/pages/transaction/table/TransactionFilter";
 import { TransactionForm } from "@/components/pages/transaction/form/TransactionForm";
 import { Navbar } from "@/components/molecules/Navbar";
 import { Button } from "@/components/ui/button";
@@ -33,8 +32,12 @@ export function TransactionContent() {
     ...(status && { status }),
   });
 
-  function handleFilterApply(newSearch: string, newStatus: FilterableStatus) {
-    updateFilters({ search: newSearch, status: newStatus, page: "1" });
+  function handleStatusChange(newStatus: FilterableStatus) {
+    updateFilters({ search, status: newStatus, page: "1" });
+  }
+
+  function handleSearchChange(value: string) {
+    updateFilters({ search: value, status, page: "1" });
   }
 
   function handlePageChange(newPage: number) {
@@ -47,7 +50,13 @@ export function TransactionContent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar role={role} />
+      <Navbar
+        role={role}
+        search={search}
+        status={status}
+        onSearchChangeAction={handleSearchChange}
+        onStatusChangeAction={handleStatusChange}
+      />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-6 sm:px-0">
         <div className="mb-4 flex items-center justify-between">
@@ -58,11 +67,6 @@ export function TransactionContent() {
                 + Buat Transaksi
               </Button>
             )}
-            <TransactionFilter
-              search={search}
-              status={status}
-              onFilterChangeAction={handleFilterApply}
-            />
           </div>
         </div>
 
