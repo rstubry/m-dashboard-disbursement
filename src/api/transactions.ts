@@ -2,15 +2,12 @@ import { apiClient } from "@/api/axios";
 import type {
   Transaction,
   TransactionListParams,
-  TransactionListResponse,
   CreateTransactionPayload,
   UpdateTransactionPayload,
 } from "@/models/transaction";
 
-export const getTransactions = async (
-  params: TransactionListParams,
-): Promise<TransactionListResponse> => {
-  const response = await apiClient.get<Transaction[]>("/transactions", {
+export const getTransactions = (params: TransactionListParams) =>
+  apiClient.get<Transaction[]>("/transactions", {
     params: {
       page: params.page,
       limit: params.limit,
@@ -18,11 +15,14 @@ export const getTransactions = async (
       ...(params.search && { search: params.search }),
     },
   });
-  return {
-    data: response.data,
-    total: Number(response.headers["x-total-count"] ?? 0),
-  };
-};
+
+export const getTransactionCount = (params: Pick<TransactionListParams, "status" | "search">) =>
+  apiClient.get<Transaction[]>("/transactions", {
+    params: {
+      ...(params.status && { status: params.status }),
+      ...(params.search && { search: params.search }),
+    },
+  });
 
 export const createTransaction = (payload: CreateTransactionPayload) =>
   apiClient.post<Transaction>("/transactions", payload);
