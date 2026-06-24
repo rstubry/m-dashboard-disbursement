@@ -33,6 +33,9 @@ import {
   Eye,
   SearchX,
   TriangleAlert,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
@@ -41,6 +44,21 @@ import { STATUS_CLASS, MAX_VISIBLE_PAGES } from "@/lib/constants";
 import { useUpdateTransaction } from "@/hooks/useTransactions";
 import { toast } from "sonner";
 import type { Transaction } from "@/models/transaction";
+
+type SortColumn = { key: string; label: string };
+
+const SORTABLE_COLUMNS: SortColumn[] = [
+  { key: "sender_name", label: "Sender Name" },
+  { key: "bank", label: "Bank" },
+  { key: "amount", label: "Amount" },
+  { key: "admin_fee", label: "Admin Fee" },
+  { key: "status", label: "Status" },
+  { key: "created_at", label: "Date" },
+];
+
+const SORT_KEY_BY_LABEL: Record<string, SortColumn> = Object.fromEntries(
+  SORTABLE_COLUMNS.map((c) => [c.label, c]),
+);
 
 type TransactionTableProps = {
   data: Transaction[];
@@ -53,9 +71,12 @@ type TransactionTableProps = {
   isAdmin: boolean;
   search?: string;
   status?: string;
+  sortBy?: string;
+  order?: string;
   onPageChangeAction: (page: number) => void;
   onLimitChangeAction: (limit: number) => void;
   onRowClickAction: (transaction: Transaction) => void;
+  onSortChangeAction?: (sortBy: string, order: string) => void;
 };
 
 const BASE_COLUMNS = [
@@ -85,9 +106,12 @@ export function TransactionTable({
   isAdmin,
   search,
   status,
+  sortBy,
+  order,
   onPageChangeAction,
   onLimitChangeAction,
   onRowClickAction,
+  onSortChangeAction,
 }: TransactionTableProps) {
   const updateMutation = useUpdateTransaction();
   const [confirm, setConfirm] = useState<ConfirmState>({
@@ -100,6 +124,36 @@ export function TransactionTable({
   const totalPages = Math.ceil(total / limit);
   const from = total === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
+
+  function getSortIcon(col: string) {
+    const sortCol = SORT_KEY_BY_LABEL[col];
+    if (!sortCol || sortBy !== sortCol.key) return <ArrowUpDown className="ml-1 inline size-3 opacity-30" />;
+    return order === "asc" ? <ArrowUp className="ml-1 inline size-3" /> : <ArrowDown className="ml-1 inline size-3" />;
+  }
+
+  function handleSort(col: string) {
+    const sortCol = SORT_KEY_BY_LABEL[col];
+    if (!sortCol || !onSortChangeAction) return;
+    if (sortBy === sortCol.key) {
+      onSortChangeAction(sortCol.key, order === "asc" ? "desc" : "asc");
+    } else {
+      onSortChangeAction(sortCol.key, "asc");
+    }
+  }
+
+  function renderHeader(col: string) {
+    const sortCol = SORT_KEY_BY_LABEL[col];
+    if (sortCol) {
+      return (
+        <TableHead key={col} className="cursor-pointer select-none" onClick={() => handleSort(col)}>
+          <span className="inline-flex items-center">
+            {col}{getSortIcon(col)}
+          </span>
+        </TableHead>
+      );
+    }
+    return <TableHead key={col}>{col}</TableHead>;
+  }
 
   function handleStatusUpdate() {
     if (!confirm.transaction || !confirm.action) return;
@@ -166,9 +220,7 @@ export function TransactionTable({
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((col) => (
-                  <TableHead key={col}>{col}</TableHead>
-                ))}
+                {columns.map((col) => renderHeader(col))}
               </TableRow>
             </TableHeader>
             <TableBody>

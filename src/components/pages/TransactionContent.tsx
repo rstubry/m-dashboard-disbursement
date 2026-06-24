@@ -8,7 +8,8 @@ import { TransactionTable } from "@/components/pages/transaction/table/Transacti
 import { TransactionForm } from "@/components/pages/transaction/form/TransactionForm";
 import { Navbar } from "@/components/molecules/Navbar";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Download } from "lucide-react";
+import { exportToCSV } from "@/lib/utils";
 import type { FilterableStatus } from "@/components/pages/transaction/table/TransactionFilter.schema";
 import type { Transaction } from "@/models/transaction";
 import { LIMIT_OPTIONS, DEFAULT_LIMIT } from "@/lib/constants";
@@ -21,6 +22,8 @@ export function TransactionContent() {
   const limit = Number(getParam("limit", String(DEFAULT_LIMIT)));
   const search = getParam("search");
   const status = getParam("status") as FilterableStatus;
+  const sortBy = getParam("sortBy");
+  const order = getParam("order", "asc");
 
   const [formOpen, setFormOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
@@ -31,6 +34,8 @@ export function TransactionContent() {
     limit,
     ...(search && { search }),
     ...(status && { status }),
+    ...(sortBy && { sortBy: sortBy as keyof Transaction }),
+    ...(order && { order: order as "asc" | "desc" }),
   });
 
   function handleStatusChange(newStatus: FilterableStatus) {
@@ -49,6 +54,38 @@ export function TransactionContent() {
     updateFilters({ limit: String(newLimit), page: "1" });
   }
 
+  function handleSortChange(newSortBy: string, newOrder: string) {
+    updateFilters({ sortBy: newSortBy, order: newOrder, page: "1" });
+  }
+
+  const CSV_COLUMNS = [
+    { key: "id" as const, label: "ID" },
+    { key: "sender_name" as const, label: "Sender Name" },
+    { key: "account_number" as const, label: "Account Number" },
+    { key: "bank" as const, label: "Bank" },
+    { key: "amount" as const, label: "Amount" },
+    { key: "admin_fee" as const, label: "Admin Fee" },
+    { key: "status" as const, label: "Status" },
+    { key: "note" as const, label: "Note" },
+    { key: "created_at" as const, label: "Date" },
+  ];
+
+  function handleExportCSV() {
+    const items = data?.data;
+    if (!items || items.length === 0) return;
+    const now = new Date();
+    const ts = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, "0"),
+      String(now.getDate()).padStart(2, "0"),
+      "-",
+      String(now.getHours()).padStart(2, "0"),
+      String(now.getMinutes()).padStart(2, "0"),
+      String(now.getSeconds()).padStart(2, "0"),
+    ].join("");
+    exportToCSV(items, CSV_COLUMNS, `${ts}-transactions.csv`);
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar
@@ -63,6 +100,17 @@ export function TransactionContent() {
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-medium">Transaction List</h2>
           <div className="flex items-center gap-2">
+            {data?.data && data.data.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                className="cursor-pointer"
+              >
+                <Download className="size-4" />
+                Export CSV
+              </Button>
+            )}
             {role === "operator" && (
               <Button
                 size="sm"
@@ -87,9 +135,12 @@ export function TransactionContent() {
           isAdmin={role === "admin"}
           search={search}
           status={status}
+          sortBy={sortBy}
+          order={order}
           onPageChangeAction={handlePageChange}
           onLimitChangeAction={handleLimitChange}
           onRowClickAction={setSelectedTransaction}
+          onSortChangeAction={handleSortChange}
         />
       </main>
 
