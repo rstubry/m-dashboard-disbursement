@@ -27,6 +27,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   MoreVertical,
   CheckCircle,
   XCircle,
@@ -331,17 +338,21 @@ export function TransactionTable({
             </span>
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               <span>Show</span>
-              <select
-                value={limit}
-                onChange={(e) => onLimitChangeAction(Number(e.target.value))}
-                className="h-7 rounded-md border border-input bg-transparent px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+              <Select
+                value={String(limit)}
+                onValueChange={(v) => onLimitChangeAction(Number(v))}
               >
-                {limitOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-7 w-auto gap-1 px-2 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {limitOptions.map((opt) => (
+                    <SelectItem key={opt} value={String(opt)}>
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <span>rows</span>
             </div>
           </div>

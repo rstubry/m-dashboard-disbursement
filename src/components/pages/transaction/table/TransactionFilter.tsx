@@ -20,6 +20,13 @@ import {
   filterSchema,
 } from "./TransactionFilter.schema";
 import { STATUS_OPTIONS } from "@/lib/constants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type TransactionFilterProps = {
   status: FilterableStatus;
@@ -75,17 +82,18 @@ export function TransactionFilter({
               render={({ field }) => (
                 <Field>
                   <FieldLabel htmlFor="filter-status">Status</FieldLabel>
-                  <select
-                    {...field}
-                    id="filter-status"
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  >
-                    {STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="filter-status">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
               )}
             />
