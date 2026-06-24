@@ -98,6 +98,7 @@ function DashboardContent() {
           isAdmin={role === "admin"}
           onPageChangeAction={handlePageChange}
           onLimitChangeAction={handleLimitChange}
+          onRowClickAction={setSelectedTransaction}
         />
       </main>
 
@@ -108,6 +109,13 @@ function DashboardContent() {
           type="ADD"
         />
       )}
+
+      <TransactionForm
+        open={selectedTransaction !== null}
+        onOpenChangeAction={() => setSelectedTransaction(null)}
+        type="VIEW"
+        transaction={selectedTransaction ?? undefined}
+      />
     </div>
   );
 }

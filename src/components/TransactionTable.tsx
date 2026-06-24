@@ -22,19 +22,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, CheckCircle, XCircle } from "lucide-react";
+import { MoreVertical, CheckCircle, XCircle, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { formatRupiah, formatDate, formatTitleCase } from "@/lib/utils";
-import { STATUS_CLASS } from "@/lib/constants";
+import { STATUS_CLASS, MAX_VISIBLE_PAGES } from "@/lib/constants";
 import { useUpdateTransaction } from "@/hooks/useTransactions";
 import { toast } from "sonner";
 import type { Transaction } from "@/models/transaction";
 
-const MAX_VISIBLE_PAGES = 5;
+
 
 type TransactionTableProps = {
   data: Transaction[];
@@ -47,6 +48,7 @@ type TransactionTableProps = {
   isAdmin: boolean;
   onPageChangeAction: (page: number) => void;
   onLimitChangeAction: (limit: number) => void;
+  onRowClickAction: (transaction: Transaction) => void;
 };
 
 const BASE_COLUMNS = [
@@ -76,6 +78,7 @@ export function TransactionTable({
   isAdmin,
   onPageChangeAction,
   onLimitChangeAction,
+  onRowClickAction,
 }: TransactionTableProps) {
   const updateMutation = useUpdateTransaction();
   const [confirm, setConfirm] = useState<ConfirmState>({
@@ -84,9 +87,7 @@ export function TransactionTable({
     transaction: null,
   });
 
-  const hasPendingRows = data.some((row) => row.status === "PENDING");
-  const columns =
-    isAdmin && hasPendingRows ? [...BASE_COLUMNS, "Aksi"] : BASE_COLUMNS;
+  const columns = [...BASE_COLUMNS, "Aksi"];
   const totalPages = Math.ceil(total / limit);
   const from = total === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
@@ -190,44 +191,54 @@ export function TransactionTable({
                     </TableCell>
                     <TableCell>{formatDate(row.created_at)}</TableCell>
                     <TableCell>
-                      {isAdmin && row.status === "PENDING" && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon-sm">
-                              <MoreVertical className="h-4 w-4" />
-                              <span className="sr-only">Aksi</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600"
-                              onClick={() =>
-                                setConfirm({
-                                  open: true,
-                                  action: "APPROVED",
-                                  transaction: row,
-                                })
-                              }
-                            >
-                              <CheckCircle size={16} className="mr-1" />
-                              Setujui
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
-                              onClick={() =>
-                                setConfirm({
-                                  open: true,
-                                  action: "REJECTED",
-                                  transaction: row,
-                                })
-                              }
-                            >
-                              <XCircle size={16} className="mr-1" />
-                              Tolak
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon-sm">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Aksi</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {isAdmin && row.status === "PENDING" && (
+                            <>
+                              <DropdownMenuItem
+                                className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600"
+                                onClick={() =>
+                                  setConfirm({
+                                    open: true,
+                                    action: "APPROVED",
+                                    transaction: row,
+                                  })
+                                }
+                              >
+                                <CheckCircle size={16} className="mr-1" />
+                                Setujui
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
+                                onClick={() =>
+                                  setConfirm({
+                                    open: true,
+                                    action: "REJECTED",
+                                    transaction: row,
+                                  })
+                                }
+                              >
+                                <XCircle size={16} className="mr-1" />
+                                Tolak
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => onRowClickAction(row)}
+                          >
+                            <Eye size={16} className="mr-1" />
+                            Detail
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

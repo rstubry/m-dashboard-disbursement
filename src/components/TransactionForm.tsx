@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCreateTransaction } from "@/hooks/useTransactions";
 import { BANKS } from "@/lib/constants";
-import type { Bank } from "@/models/transaction";
+import type { Bank, Transaction } from "@/models/transaction";
 
 type TransactionFormValues = {
   sender_name: string;
@@ -59,7 +59,8 @@ const formSchema = z.object({
 type TransactionFormProps = {
   open: boolean;
   onOpenChangeAction: (open: boolean) => void;
-  type: "ADD";
+  type: "ADD" | "VIEW";
+  transaction?: Transaction;
 };
 
 function calcAdminFee(amount: number): number {
@@ -69,6 +70,8 @@ function calcAdminFee(amount: number): number {
 export function TransactionForm({
   open,
   onOpenChangeAction,
+  type,
+  transaction,
 }: TransactionFormProps) {
   const createMutation = useCreateTransaction();
 
@@ -86,8 +89,18 @@ export function TransactionForm({
   useEffect(() => {
     if (!open) {
       form.reset();
+      return;
     }
-  }, [open, form]);
+    if (type === "VIEW" && transaction) {
+      form.reset({
+        sender_name: transaction.sender_name,
+        account_number: transaction.account_number,
+        bank: transaction.bank,
+        amount: transaction.amount,
+        note: transaction.note,
+      });
+    }
+  }, [open, type, transaction, form]);
 
   function onSubmit(values: TransactionFormValues) {
     createMutation.mutate(
@@ -115,12 +128,15 @@ export function TransactionForm({
   }
 
   const isPending = createMutation.isPending;
+  const isView = type === "VIEW";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChangeAction}>
       <SheetContent side="right" className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Buat Transaksi</SheetTitle>
+          <SheetTitle>
+            {isView ? "Detail Transaksi" : "Buat Transaksi"}
+          </SheetTitle>
         </SheetHeader>
 
         <form
@@ -139,7 +155,8 @@ export function TransactionForm({
                       {...field}
                       id="sender_name"
                       placeholder="Contoh: Budi Santoso"
-                      disabled={isPending}
+                      disabled={isPending || isView}
+                      readOnly={isView}
                     />
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
@@ -162,7 +179,8 @@ export function TransactionForm({
                       {...field}
                       id="account_number"
                       placeholder="Contoh: 1234567890"
-                      disabled={isPending}
+                      disabled={isPending || isView}
+                      readOnly={isView}
                     />
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
@@ -182,7 +200,7 @@ export function TransactionForm({
                     <select
                       {...field}
                       id="bank"
-                      disabled={isPending}
+                      disabled={isPending || isView}
                       className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                     >
                       {BANKS.map((b) => (
@@ -211,7 +229,8 @@ export function TransactionForm({
                       id="amount"
                       type="number"
                       placeholder="Contoh: 1250000"
-                      disabled={isPending}
+                      disabled={isPending || isView}
+                      readOnly={isView}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                     {fieldState.error && (
@@ -233,7 +252,8 @@ export function TransactionForm({
                       {...field}
                       id="note"
                       placeholder="Contoh: Pembayaran supplier"
-                      disabled={isPending}
+                      disabled={isPending || isView}
+                      readOnly={isView}
                     />
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
@@ -248,20 +268,33 @@ export function TransactionForm({
 
           <div className="sticky bottom-0 bg-popover">
             <Separator />
-            <div className="flex gap-2 p-4">
-              <Button
-                type="button"
-                variant="ghost"
-                className="flex-1"
-                onClick={() => onOpenChangeAction(false)}
-                disabled={isPending}
-              >
-                Batal
-              </Button>
-              <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? "Menyimpan..." : "Simpan"}
-              </Button>
-            </div>
+            {isView ? (
+              <div className="flex gap-2 p-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={() => onOpenChangeAction(false)}
+                >
+                  Tutup
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 p-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={() => onOpenChangeAction(false)}
+                  disabled={isPending}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" className="flex-1" disabled={isPending}>
+                  {isPending ? "Menyimpan..." : "Simpan"}
+                </Button>
+              </div>
+            )}
           </div>
         </form>
       </SheetContent>
