@@ -96,6 +96,8 @@ function DashboardContent() {
           isLoading={isLoading}
           isError={isError}
           isAdmin={role === "admin"}
+          search={search}
+          status={status}
           onPageChangeAction={handlePageChange}
           onLimitChangeAction={handleLimitChange}
           onRowClickAction={setSelectedTransaction}

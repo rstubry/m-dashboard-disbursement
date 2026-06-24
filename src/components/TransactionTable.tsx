@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, CheckCircle, XCircle, Eye } from "lucide-react";
+import { MoreVertical, CheckCircle, XCircle, Eye, SearchX, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { formatRupiah, formatDate, formatTitleCase } from "@/lib/utils";
@@ -46,6 +46,8 @@ type TransactionTableProps = {
   isLoading: boolean;
   isError: boolean;
   isAdmin: boolean;
+  search?: string;
+  status?: string;
   onPageChangeAction: (page: number) => void;
   onLimitChangeAction: (limit: number) => void;
   onRowClickAction: (transaction: Transaction) => void;
@@ -76,6 +78,8 @@ export function TransactionTable({
   isLoading,
   isError,
   isAdmin,
+  search,
+  status,
   onPageChangeAction,
   onLimitChangeAction,
   onRowClickAction,
@@ -134,9 +138,20 @@ export function TransactionTable({
   }
 
   if (isError) {
+    const hasFilter = (search && search !== "") || (status && status !== "");
     return (
-      <div className="flex h-40 items-center justify-center rounded-md border text-sm text-destructive">
-        Gagal memuat data. Silakan coba lagi.
+      <div className="flex h-40 items-center justify-center rounded-md border">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <TriangleAlert className="size-8 opacity-40" />
+          <span className="text-sm">
+            Gagal memuat data. Silakan coba lagi.
+          </span>
+          {hasFilter && (
+            <span className="text-xs text-muted-foreground/70">
+              Coba periksa kembali filter atau ubah kata kunci pencarian.
+            </span>
+          )}
+        </div>
       </div>
     );
   }
@@ -168,9 +183,14 @@ export function TransactionTable({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-40 text-center text-sm text-muted-foreground"
+                    className="h-40 text-center"
                   >
-                    Tidak ada transaksi ditemukan.
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <SearchX className="size-8 opacity-40" />
+                      <span className="text-sm">
+                        Tidak ada transaksi ditemukan.
+                      </span>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
