@@ -50,7 +50,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## API
 
-Mock API base URL: `https://6a2bb86c3e2b60ab038eb30a.mockapi.io/api/v1`
+Configure `NEXT_PUBLIC_API_BASE_URL` in `.env`. See `.env.example`.
 
 | Method | Endpoint            | Description          |
 |--------|---------------------|----------------------|
@@ -80,12 +80,36 @@ src/
 
 ## Scripts
 
-| Command          | Description              |
-|------------------|--------------------------|
-| `npm run dev`    | Start dev server         |
-| `npm run build`  | Production build         |
-| `npm run lint`   | ESLint                   |
-| `npm run typecheck` | TypeScript check       |
+| Command             | Description              |
+|---------------------|--------------------------|
+| `npm run dev`       | Start dev server         |
+| `npm run build`     | Production build         |
+| `npm run lint`      | ESLint                   |
+| `npm run typecheck` | TypeScript check         |
+
+## Docker
+
+```bash
+# Build and start
+make build
+
+# Start
+make up
+
+# View logs
+make logs
+
+# Stop
+make down
+```
+
+Or directly with Docker Compose:
+
+```bash
+docker compose up -d --build
+```
+
+Configure the API base URL via `NEXT_PUBLIC_API_BASE_URL` in `.env`.
 
 ## Notes
 
