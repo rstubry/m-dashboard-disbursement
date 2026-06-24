@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,23 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { TransactionStatus } from "@/models/transaction";
-
-const STATUS_OPTIONS: { label: string; value: TransactionStatus | "" }[] = [
-  { label: "Semua Status", value: "" },
-  { label: "PENDING", value: "PENDING" },
-  { label: "SUCCESS", value: "SUCCESS" },
-  { label: "FAILED", value: "FAILED" },
-];
-
-const filterSchema = z.object({
-  search: z.string(),
-  status: z.enum(["", "PENDING", "SUCCESS", "FAILED"]),
-});
-
-type FilterValues = z.infer<typeof filterSchema>;
-
-export type FilterableStatus = "" | "PENDING" | "SUCCESS" | "FAILED";
+import {
+  type FilterValues,
+  type FilterableStatus,
+  filterSchema,
+} from "./TransactionFilter.schema";
+import { STATUS_OPTIONS } from "@/lib/constants";
 
 type TransactionFilterProps = {
   search: string;

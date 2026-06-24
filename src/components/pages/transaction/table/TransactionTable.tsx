@@ -26,16 +26,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, CheckCircle, XCircle, Eye, SearchX, TriangleAlert } from "lucide-react";
+import {
+  MoreVertical,
+  CheckCircle,
+  XCircle,
+  Eye,
+  SearchX,
+  TriangleAlert,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { formatRupiah, formatDate, formatTitleCase } from "@/lib/utils";
 import { STATUS_CLASS, MAX_VISIBLE_PAGES } from "@/lib/constants";
 import { useUpdateTransaction } from "@/hooks/useTransactions";
 import { toast } from "sonner";
 import type { Transaction } from "@/models/transaction";
-
-
 
 type TransactionTableProps = {
   data: Transaction[];
@@ -143,9 +148,7 @@ export function TransactionTable({
       <div className="flex h-40 items-center justify-center rounded-md border">
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <TriangleAlert className="size-8 opacity-40" />
-          <span className="text-sm">
-            Gagal memuat data. Silakan coba lagi.
-          </span>
+          <span className="text-sm">Gagal memuat data. Silakan coba lagi.</span>
           {hasFilter && (
             <span className="text-xs text-muted-foreground/70">
               Coba periksa kembali filter atau ubah kata kunci pencarian.

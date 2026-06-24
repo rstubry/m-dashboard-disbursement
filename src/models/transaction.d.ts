@@ -1,4 +1,9 @@
-export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILED" | "APPROVED" | "REJECTED";
+export type TransactionStatus =
+  | "PENDING"
+  | "SUCCESS"
+  | "FAILED"
+  | "APPROVED"
+  | "REJECTED";
 
 export type Bank =
   | "BCA"
