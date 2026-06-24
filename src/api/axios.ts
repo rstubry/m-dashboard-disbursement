@@ -1,8 +1,7 @@
 import axios from "axios";
-import { BASE_URL } from "@/lib/constants";
 
 export const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
