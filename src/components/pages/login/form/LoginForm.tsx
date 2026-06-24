@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { encodeJWT, setAuthCookie } from "@/lib/jwt";
 import {
@@ -46,7 +47,8 @@ export function LoginForm({
 
     const token = encodeJWT({ username: values.username, role: cred.role });
     setAuthCookie(token);
-    router.push("/dashboard");
+    toast.success(`Welcome back, ${values.username}!`);
+    requestAnimationFrame(() => requestAnimationFrame(() => router.push("/dashboard")));
   }
 
   return (
