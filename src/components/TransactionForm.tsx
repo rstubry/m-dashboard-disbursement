@@ -15,6 +15,13 @@ import { Separator } from "@/components/ui/separator";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCreateTransaction } from "@/hooks/useTransactions";
 import { BANKS } from "@/lib/constants";
 import type { Bank, Transaction } from "@/models/transaction";
@@ -133,11 +140,13 @@ export function TransactionForm({
   return (
     <Sheet open={open} onOpenChange={onOpenChangeAction}>
       <SheetContent side="right" className="overflow-y-auto">
-        <SheetHeader>
+        <SheetHeader className="pb-0!">
           <SheetTitle>
             {isView ? "Detail Transaksi" : "Buat Transaksi"}
           </SheetTitle>
         </SheetHeader>
+
+        <Separator />
 
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -197,18 +206,22 @@ export function TransactionForm({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="bank">Bank Tujuan</FieldLabel>
-                    <select
-                      {...field}
-                      id="bank"
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
                       disabled={isPending || isView}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                     >
-                      {BANKS.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="bank">
+                        <SelectValue placeholder="Pilih bank" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BANKS.map((b) => (
+                          <SelectItem key={b} value={b}>
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
                         {fieldState.error.message}
@@ -272,7 +285,7 @@ export function TransactionForm({
               <div className="flex gap-2 p-4">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   className="flex-1"
                   onClick={() => onOpenChangeAction(false)}
                 >
