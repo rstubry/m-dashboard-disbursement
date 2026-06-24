@@ -2,6 +2,9 @@
 
 Fintech disbursement dashboard for two roles: **operator** (create transactions) and **admin** (approve/reject).
 
+- **Production**: [mdbdsb.rstubryan.site](https://mdbdsb.rstubryan.site)
+- **Backup**: [m-dashboard-disbursement.vercel.app](https://m-dashboard-disbursement.vercel.app)
+
 ## Getting Started
 
 ```bash
@@ -13,10 +16,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Login Credentials
 
-| Username   | Password      | Role     |
-|-----------|---------------|----------|
-| admin     | admin123      | admin    |
-| operator  | operator123   | operator |
+| Username | Password    | Role     |
+| -------- | ----------- | -------- |
+| admin    | admin123    | admin    |
+| operator | operator123 | operator |
 
 ## Tech Stack
 
@@ -31,6 +34,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Implemented Features
 
 ### Core
+
 - ✅ Login form with Zod validation + JWT auth
 - ✅ Protected routes via `proxy.ts` + 401 Axios interceptor
 - ✅ Transaction list with server-side pagination, search (debounce 400ms), status filter
@@ -42,6 +46,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - ✅ Loading (skeleton), empty, and error states all handled
 
 ### Bonus
+
 - ✅ Mobile responsive (collapsible navbar, centered pagination, full-width sheets)
 - ✅ Skeleton loading during data fetch
 - ✅ Server-side sort — clickable table headers with sort direction indicators
@@ -52,11 +57,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Configure `NEXT_PUBLIC_API_BASE_URL` in `.env`. See `.env.example`.
 
-| Method | Endpoint            | Description          |
-|--------|---------------------|----------------------|
-| GET    | /transactions       | List + filter + paginate |
-| POST   | /transactions       | Create transaction   |
-| PUT    | /transactions/:id   | Update status        |
+| Method | Endpoint          | Description              |
+| ------ | ----------------- | ------------------------ |
+| GET    | /transactions     | List + filter + paginate |
+| POST   | /transactions     | Create transaction       |
+| PUT    | /transactions/:id | Update status            |
 
 ## Project Structure
 
@@ -80,12 +85,12 @@ src/
 
 ## Scripts
 
-| Command             | Description              |
-|---------------------|--------------------------|
-| `npm run dev`       | Start dev server         |
-| `npm run build`     | Production build         |
-| `npm run lint`      | ESLint                   |
-| `npm run typecheck` | TypeScript check         |
+| Command             | Description      |
+| ------------------- | ---------------- |
+| `npm run dev`       | Start dev server |
+| `npm run build`     | Production build |
+| `npm run lint`      | ESLint           |
+| `npm run typecheck` | TypeScript check |
 
 ## Docker
 

@@ -96,16 +96,17 @@ export function TransactionContent() {
         onStatusChangeAction={handleStatusChange}
       />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-6 sm:px-0">
-        <div className="mb-4 flex items-center justify-between">
+      <main className="flex-1 px-4 py-6 md:px-6">
+        <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-base font-medium">Transaction List</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {data?.data && data.data.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportCSV}
-                className="cursor-pointer"
+                className="cursor-pointer w-full sm:w-auto"
               >
                 <Download className="size-4" />
                 Export CSV
@@ -115,7 +116,7 @@ export function TransactionContent() {
               <Button
                 size="sm"
                 onClick={() => setFormOpen(true)}
-                className="cursor-pointer"
+                className="cursor-pointer w-full sm:w-auto"
               >
                 <Plus className="size-4" />
                 Create Transaction
@@ -142,6 +143,7 @@ export function TransactionContent() {
           onRowClickAction={setSelectedTransaction}
           onSortChangeAction={handleSortChange}
         />
+        </div>
       </main>
 
       {role === "operator" && (

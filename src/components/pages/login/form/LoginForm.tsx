@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { encodeJWT, setAuthCookie } from "@/lib/jwt";
 import {
@@ -28,6 +30,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -46,7 +49,8 @@ export function LoginForm({
 
     const token = encodeJWT({ username: values.username, role: cred.role });
     setAuthCookie(token);
-    router.push("/dashboard");
+    toast.success(`Welcome back, ${values.username}!`);
+    requestAnimationFrame(() => requestAnimationFrame(() => router.push("/dashboard")));
   }
 
   return (
@@ -79,11 +83,22 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    className="pr-10"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.password.message}
