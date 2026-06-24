@@ -13,6 +13,12 @@ export function formatRupiah(amount: number): string {
   }).format(amount)
 }
 
+export function formatTitleCase(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function formatDate(dateStr: string): string {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
