@@ -1,11 +1,11 @@
 import type { Bank, TransactionStatus } from "@/models/transaction";
 
-export const STATUS_VARIANT: Record<TransactionStatus, "default" | "outline" | "destructive"> = {
-  PENDING: "outline",
-  SUCCESS: "default",
-  FAILED: "destructive",
-  APPROVED: "default",
-  REJECTED: "destructive",
+export const STATUS_CLASS: Record<string, string> = {
+  PENDING: "border-muted-foreground/30 bg-muted text-muted-foreground",
+  SUCCESS: "border-green-700 bg-green-50 text-green-700 dark:border-green-300 dark:bg-green-950 dark:text-green-300",
+  APPROVED: "border-green-700 bg-green-50 text-green-700 dark:border-green-300 dark:bg-green-950 dark:text-green-300",
+  FAILED: "border-destructive bg-destructive/15 text-destructive",
+  REJECTED: "border-destructive bg-destructive/15 text-destructive",
 };
 
 export const BANKS: Bank[] = [
