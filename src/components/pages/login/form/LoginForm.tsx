@@ -3,10 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { encodeJWT, setAuthCookie } from "@/lib/jwt";
+import {
+  type FormValues,
+  schema,
+  CREDENTIALS,
+} from "./LoginForm.schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,24 +21,6 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-
-const CREDENTIALS = {
-  admin: { password: "admin123", role: "admin" as const },
-  operator: { password: "operator123", role: "operator" as const },
-};
-
-const schema = z.object({
-  username: z
-    .string()
-    .min(1, "Username wajib diisi")
-    .refine((v) => v.trim().length > 0, "Tidak boleh spasi saja"),
-  password: z
-    .string()
-    .min(1, "Password wajib diisi")
-    .refine((v) => v.trim().length > 0, "Tidak boleh spasi saja"),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 export function LoginForm({
   className,
@@ -54,7 +40,7 @@ export function LoginForm({
     const cred = CREDENTIALS[values.username as keyof typeof CREDENTIALS];
 
     if (!cred || cred.password !== values.password) {
-      setAuthError("Username atau password salah");
+      setAuthError("Invalid username or password");
       return;
     }
 
@@ -109,7 +95,7 @@ export function LoginForm({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full"
+                  className="w-full cursor-pointer"
                 >
                   {isSubmitting ? "Logging in..." : "Login"}
                 </Button>

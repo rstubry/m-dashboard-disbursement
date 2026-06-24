@@ -1,6 +1,5 @@
+import { SECRET } from "@/lib/constants";
 import { JWTPayload } from "@/models/base";
-
-const SECRET = "test-secret";
 
 function base64url(str: string): string {
   return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");

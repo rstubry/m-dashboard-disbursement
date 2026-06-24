@@ -22,19 +22,50 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, CheckCircle, XCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  MoreVertical,
+  CheckCircle,
+  XCircle,
+  Eye,
+  SearchX,
+  TriangleAlert,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { formatRupiah, formatDate, formatTitleCase } from "@/lib/utils";
-import { STATUS_CLASS } from "@/lib/constants";
+import { STATUS_CLASS, MAX_VISIBLE_PAGES } from "@/lib/constants";
 import { useUpdateTransaction } from "@/hooks/useTransactions";
 import { toast } from "sonner";
 import type { Transaction } from "@/models/transaction";
 
-const MAX_VISIBLE_PAGES = 5;
+type SortColumn = { key: string; label: string };
+
+const SORTABLE_COLUMNS: SortColumn[] = [
+  { key: "sender_name", label: "Sender Name" },
+  { key: "bank", label: "Bank" },
+  { key: "amount", label: "Amount" },
+  { key: "admin_fee", label: "Admin Fee" },
+  { key: "status", label: "Status" },
+  { key: "created_at", label: "Date" },
+];
+
+const SORT_KEY_BY_LABEL: Record<string, SortColumn> = Object.fromEntries(
+  SORTABLE_COLUMNS.map((c) => [c.label, c]),
+);
 
 type TransactionTableProps = {
   data: Transaction[];
@@ -45,18 +76,24 @@ type TransactionTableProps = {
   isLoading: boolean;
   isError: boolean;
   isAdmin: boolean;
+  search?: string;
+  status?: string;
+  sortBy?: string;
+  order?: string;
   onPageChangeAction: (page: number) => void;
   onLimitChangeAction: (limit: number) => void;
+  onRowClickAction: (transaction: Transaction) => void;
+  onSortChangeAction?: (sortBy: string, order: string) => void;
 };
 
 const BASE_COLUMNS = [
   "ID",
-  "Nama Pengirim",
+  "Sender Name",
   "Bank",
-  "Jumlah",
-  "Biaya Admin",
+  "Amount",
+  "Admin Fee",
   "Status",
-  "Tanggal",
+  "Date",
 ];
 
 type ConfirmState = {
@@ -74,8 +111,14 @@ export function TransactionTable({
   isLoading,
   isError,
   isAdmin,
+  search,
+  status,
+  sortBy,
+  order,
   onPageChangeAction,
   onLimitChangeAction,
+  onRowClickAction,
+  onSortChangeAction,
 }: TransactionTableProps) {
   const updateMutation = useUpdateTransaction();
   const [confirm, setConfirm] = useState<ConfirmState>({
@@ -84,12 +127,40 @@ export function TransactionTable({
     transaction: null,
   });
 
-  const hasPendingRows = data.some((row) => row.status === "PENDING");
-  const columns =
-    isAdmin && hasPendingRows ? [...BASE_COLUMNS, "Aksi"] : BASE_COLUMNS;
+  const columns = [...BASE_COLUMNS, "Actions"];
   const totalPages = Math.ceil(total / limit);
   const from = total === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
+
+  function getSortIcon(col: string) {
+    const sortCol = SORT_KEY_BY_LABEL[col];
+    if (!sortCol || sortBy !== sortCol.key) return <ArrowUpDown className="ml-1 inline size-3 opacity-30" />;
+    return order === "asc" ? <ArrowUp className="ml-1 inline size-3" /> : <ArrowDown className="ml-1 inline size-3" />;
+  }
+
+  function handleSort(col: string) {
+    const sortCol = SORT_KEY_BY_LABEL[col];
+    if (!sortCol || !onSortChangeAction) return;
+    if (sortBy === sortCol.key) {
+      onSortChangeAction(sortCol.key, order === "asc" ? "desc" : "asc");
+    } else {
+      onSortChangeAction(sortCol.key, "asc");
+    }
+  }
+
+  function renderHeader(col: string) {
+    const sortCol = SORT_KEY_BY_LABEL[col];
+    if (sortCol) {
+      return (
+        <TableHead key={col} className="cursor-pointer select-none" onClick={() => handleSort(col)}>
+          <span className="inline-flex items-center">
+            {col}{getSortIcon(col)}
+          </span>
+        </TableHead>
+      );
+    }
+    return <TableHead key={col}>{col}</TableHead>;
+  }
 
   function handleStatusUpdate() {
     if (!confirm.transaction || !confirm.action) return;
@@ -99,14 +170,14 @@ export function TransactionTable({
         onSuccess: () => {
           toast.success(
             confirm.action === "APPROVED"
-              ? "Transaksi berhasil disetujui"
-              : "Transaksi berhasil ditolak",
+              ? "Transaction approved successfully"
+              : "Transaction rejected successfully",
           );
           setConfirm({ open: false, action: null, transaction: null });
         },
         onError: (err) => {
           toast.error(
-            err instanceof Error ? err.message : "Gagal mengupdate status",
+            err instanceof Error ? err.message : "Failed to update status",
           );
           setConfirm({ open: false, action: null, transaction: null });
         },
@@ -133,9 +204,18 @@ export function TransactionTable({
   }
 
   if (isError) {
+    const hasFilter = (search && search !== "") || (status && status !== "");
     return (
-      <div className="flex h-40 items-center justify-center rounded-md border text-sm text-destructive">
-        Gagal memuat data. Silakan coba lagi.
+      <div className="flex h-40 items-center justify-center rounded-md border">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <TriangleAlert className="size-8 opacity-40" />
+          <span className="text-sm">Failed to load data. Please try again.</span>
+          {hasFilter && (
+            <span className="text-xs text-muted-foreground/70">
+              Check your filters or try a different search keyword.
+            </span>
+          )}
+        </div>
       </div>
     );
   }
@@ -147,9 +227,7 @@ export function TransactionTable({
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((col) => (
-                  <TableHead key={col}>{col}</TableHead>
-                ))}
+                {columns.map((col) => renderHeader(col))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -167,9 +245,14 @@ export function TransactionTable({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-40 text-center text-sm text-muted-foreground"
+                    className="h-40 text-center"
                   >
-                    Tidak ada transaksi ditemukan.
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <SearchX className="size-8 opacity-40" />
+                      <span className="text-sm">
+                        No transactions found.
+                      </span>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -190,44 +273,54 @@ export function TransactionTable({
                     </TableCell>
                     <TableCell>{formatDate(row.created_at)}</TableCell>
                     <TableCell>
-                      {isAdmin && row.status === "PENDING" && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon-sm">
-                              <MoreVertical className="h-4 w-4" />
-                              <span className="sr-only">Aksi</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600"
-                              onClick={() =>
-                                setConfirm({
-                                  open: true,
-                                  action: "APPROVED",
-                                  transaction: row,
-                                })
-                              }
-                            >
-                              <CheckCircle size={16} className="mr-1" />
-                              Setujui
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
-                              onClick={() =>
-                                setConfirm({
-                                  open: true,
-                                  action: "REJECTED",
-                                  transaction: row,
-                                })
-                              }
-                            >
-                              <XCircle size={16} className="mr-1" />
-                              Tolak
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon-sm" className="cursor-pointer">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {isAdmin && row.status === "PENDING" && (
+                            <>
+                              <DropdownMenuItem
+                                className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600"
+                                onClick={() =>
+                                  setConfirm({
+                                    open: true,
+                                    action: "APPROVED",
+                                    transaction: row,
+                                  })
+                                }
+                              >
+                                <CheckCircle size={16} className="mr-1" />
+                                Approve
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
+                                onClick={() =>
+                                  setConfirm({
+                                    open: true,
+                                    action: "REJECTED",
+                                    transaction: row,
+                                  })
+                                }
+                              >
+                                <XCircle size={16} className="mr-1" />
+                                Reject
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => onRowClickAction(row)}
+                          >
+                            <Eye size={16} className="mr-1" />
+                            Details
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
@@ -236,32 +329,36 @@ export function TransactionTable({
           </Table>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span>
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground sm:justify-start">
+            <span className="whitespace-nowrap">
               {total === 0
-                ? "Tidak ada transaksi"
-                : `Menampilkan ${from}–${to} dari ${total} transaksi`}
+                ? "No transactions"
+                : `Showing ${from}–${to} of ${total} transactions`}
             </span>
-            <div className="flex items-center gap-1.5">
-              <span>Tampilkan</span>
-              <select
-                value={limit}
-                onChange={(e) => onLimitChangeAction(Number(e.target.value))}
-                className="h-7 rounded-md border border-input bg-transparent px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              <span>Show</span>
+              <Select
+                value={String(limit)}
+                onValueChange={(v) => onLimitChangeAction(Number(v))}
               >
-                {limitOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <span>baris</span>
+                <SelectTrigger className="h-7 w-auto gap-1 px-2 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {limitOptions.map((opt) => (
+                    <SelectItem key={opt} value={String(opt)}>
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span>rows</span>
             </div>
           </div>
 
           {totalPages > 1 && (
-            <Pagination>
+            <Pagination className="mx-0 sm:mx-auto sm:justify-end">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
@@ -325,15 +422,15 @@ export function TransactionTable({
         open={confirm.open}
         title={
           confirm.action === "APPROVED"
-            ? "Setujui Transaksi"
-            : "Tolak Transaksi"
+            ? "Approve Transaction"
+            : "Reject Transaction"
         }
         description={
           confirm.action === "APPROVED"
-            ? "Transaksi ini akan disetujui. Tindakan ini tidak dapat dibatalkan."
-            : "Transaksi ini akan ditolak. Tindakan ini tidak dapat dibatalkan."
+            ? "This transaction will be approved. This action cannot be undone."
+            : "This transaction will be rejected. This action cannot be undone."
         }
-        confirmLabel={confirm.action === "APPROVED" ? "Setujui" : "Tolak"}
+        confirmLabel={confirm.action === "APPROVED" ? "Approve" : "Reject"}
         confirmVariant={
           confirm.action === "REJECTED" ? "destructive" : "default"
         }

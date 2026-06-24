@@ -13,10 +13,12 @@ export const getTransactions = (params: TransactionListParams) =>
       limit: params.limit,
       ...(params.status && { status: params.status }),
       ...(params.search && { search: params.search }),
+      ...(params.sortBy && { sortBy: params.sortBy }),
+      ...(params.order && { order: params.order }),
     },
   });
 
-export const getTransactionCount = (params: Pick<TransactionListParams, "status" | "search">) =>
+export const getTransactionCount = (params: Pick<TransactionListParams, "status" | "search" | "sortBy" | "order">) =>
   apiClient.get<Transaction[]>("/transactions", {
     params: {
       ...(params.status && { status: params.status }),

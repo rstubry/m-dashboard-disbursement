@@ -1,4 +1,9 @@
-export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILED" | "APPROVED" | "REJECTED";
+export type TransactionStatus =
+  | "PENDING"
+  | "SUCCESS"
+  | "FAILED"
+  | "APPROVED"
+  | "REJECTED";
 
 export type Bank =
   | "BCA"
@@ -34,6 +39,8 @@ export type TransactionListParams = {
   limit: number;
   status?: TransactionStatus;
   search?: string;
+  sortBy?: keyof Transaction;
+  order?: "asc" | "desc";
 };
 
 export type TransactionListResponse = {

@@ -2,9 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import { decodeJWT, isTokenExpired } from "@/lib/jwt";
+import { COOKIE_NAME } from "@/lib/constants";
 import type { AuthState } from "@/models/base";
-
-const COOKIE_NAME = "token";
 
 const UNAUTHENTICATED: AuthState = {
   isAuthenticated: false,

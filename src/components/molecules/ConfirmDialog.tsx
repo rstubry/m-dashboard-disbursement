@@ -31,22 +31,33 @@ export function ConfirmDialog({
   onCancelAction,
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) onCancelAction(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onCancelAction();
+      }}
+    >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">{description}</p>
         <DialogFooter className="gap-2">
-          <Button variant="ghost" onClick={onCancelAction} disabled={isPending}>
-            Batal
+          <Button
+            variant="outline"
+            onClick={onCancelAction}
+            disabled={isPending}
+            className="cursor-pointer"
+          >
+            Cancel
           </Button>
           <Button
             variant={confirmVariant}
             onClick={onConfirmAction}
             disabled={isPending}
+            className="cursor-pointer"
           >
-            {isPending ? "Memproses..." : confirmLabel}
+            {isPending ? "Processing..." : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

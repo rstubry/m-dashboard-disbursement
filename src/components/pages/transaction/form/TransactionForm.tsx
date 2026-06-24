@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -15,60 +14,37 @@ import { Separator } from "@/components/ui/separator";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCreateTransaction } from "@/hooks/useTransactions";
 import { BANKS } from "@/lib/constants";
-import type { Bank } from "@/models/transaction";
-
-type TransactionFormValues = {
-  sender_name: string;
-  account_number: string;
-  bank: Bank;
-  amount: number;
-  note: string;
-};
-
-const formSchema = z.object({
-  sender_name: z
-    .string()
-    .min(3, "Minimal 3 karakter")
-    .max(100, "Maksimal 100 karakter"),
-  account_number: z
-    .string()
-    .regex(/^\d{6,20}$/, "Nomor rekening harus 6–20 digit angka"),
-  bank: z.enum(
-    [
-      "BCA",
-      "BRI",
-      "BNI",
-      "Mandiri",
-      "BSI",
-      "CIMB Niaga",
-      "Permata",
-      "Danamon",
-      "BTN",
-    ],
-    { message: "Pilih bank tujuan" },
-  ),
-  amount: z
-    .number({ message: "Harus berupa angka" })
-    .int("Harus angka bulat")
-    .min(10000, "Minimal Rp 10.000"),
-  note: z.string().max(255, "Maksimal 255 karakter"),
-});
+import { formatRupiah, formatDate, formatTitleCase } from "@/lib/utils";
+import { STATUS_CLASS } from "@/lib/constants";
+import { Badge } from "@/components/ui/badge";
+import type { Transaction } from "@/models/transaction";
+import {
+  type TransactionFormValues,
+  formSchema,
+  calcAdminFee,
+} from "./TransactionForm.schema";
 
 type TransactionFormProps = {
   open: boolean;
   onOpenChangeAction: (open: boolean) => void;
-  type: "ADD";
+  type: "ADD" | "VIEW";
+  transaction?: Transaction;
 };
-
-function calcAdminFee(amount: number): number {
-  return amount >= 5_000_000 ? 5000 : 2500;
-}
 
 export function TransactionForm({
   open,
   onOpenChangeAction,
+  type,
+  transaction,
 }: TransactionFormProps) {
   const createMutation = useCreateTransaction();
 
@@ -86,8 +62,18 @@ export function TransactionForm({
   useEffect(() => {
     if (!open) {
       form.reset();
+      return;
     }
-  }, [open, form]);
+    if (type === "VIEW" && transaction) {
+      form.reset({
+        sender_name: transaction.sender_name,
+        account_number: transaction.account_number,
+        bank: transaction.bank,
+        amount: transaction.amount,
+        note: transaction.note,
+      });
+    }
+  }, [open, type, transaction, form]);
 
   function onSubmit(values: TransactionFormValues) {
     createMutation.mutate(
@@ -102,12 +88,12 @@ export function TransactionForm({
       },
       {
         onSuccess: () => {
-          toast.success("Transaksi berhasil dibuat");
+          toast.success("Transaction created successfully");
           onOpenChangeAction(false);
         },
         onError: (err) => {
           toast.error(
-            err instanceof Error ? err.message : "Gagal membuat transaksi",
+            err instanceof Error ? err.message : "Failed to create transaction",
           );
         },
       },
@@ -115,13 +101,46 @@ export function TransactionForm({
   }
 
   const isPending = createMutation.isPending;
+  const isView = type === "VIEW";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChangeAction}>
-      <SheetContent side="right" className="overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Buat Transaksi</SheetTitle>
+      <SheetContent
+        side="right"
+        className="w-full! overflow-y-auto sm:max-w-sm"
+      >
+        <SheetHeader className="pb-0!">
+          <SheetTitle>
+            {isView ? "Transaction Details" : "Create Transaction"}
+          </SheetTitle>
         </SheetHeader>
+
+        <Separator />
+
+        {isView && transaction && (
+          <div className="px-4 pt-2 space-y-3">
+            <Field>
+              <FieldLabel>Transaction ID</FieldLabel>
+              <p className="text-sm font-mono">{transaction.id}</p>
+            </Field>
+            <Field>
+              <FieldLabel>Admin Fee</FieldLabel>
+              <p className="text-sm">{formatRupiah(transaction.admin_fee)}</p>
+            </Field>
+            <Field>
+              <FieldLabel>Status</FieldLabel>
+              <Badge className={`${STATUS_CLASS[transaction.status]} w-max!`}>
+                <span className="mr-0.5 inline-flex size-2 rounded-full bg-current opacity-70" />
+                {formatTitleCase(transaction.status)}
+              </Badge>
+            </Field>
+            <Field>
+              <FieldLabel>Date</FieldLabel>
+              <p className="text-sm">{formatDate(transaction.created_at)}</p>
+            </Field>
+            <Separator />
+          </div>
+        )}
 
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -134,12 +153,13 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="sender_name">Nama Pengirim</FieldLabel>
+                    <FieldLabel htmlFor="sender_name">Sender Name</FieldLabel>
                     <Input
                       {...field}
                       id="sender_name"
-                      placeholder="Contoh: Budi Santoso"
-                      disabled={isPending}
+                      placeholder="e.g. Budi Santoso"
+                      disabled={isPending || isView}
+                      readOnly={isView}
                     />
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
@@ -156,13 +176,14 @@ export function TransactionForm({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="account_number">
-                      Nomor Rekening
+                      Account Number
                     </FieldLabel>
                     <Input
                       {...field}
                       id="account_number"
-                      placeholder="Contoh: 1234567890"
-                      disabled={isPending}
+                      placeholder="e.g. 1234567890"
+                      disabled={isPending || isView}
+                      readOnly={isView}
                     />
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
@@ -178,19 +199,23 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="bank">Bank Tujuan</FieldLabel>
-                    <select
-                      {...field}
-                      id="bank"
-                      disabled={isPending}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                    <FieldLabel htmlFor="bank">Destination Bank</FieldLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isPending || isView}
                     >
-                      {BANKS.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="bank">
+                        <SelectValue placeholder="Select bank" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BANKS.map((b) => (
+                          <SelectItem key={b} value={b}>
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
                         {fieldState.error.message}
@@ -205,13 +230,14 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amount">Jumlah Transfer</FieldLabel>
+                    <FieldLabel htmlFor="amount">Transfer Amount</FieldLabel>
                     <Input
                       {...field}
                       id="amount"
                       type="number"
-                      placeholder="Contoh: 1250000"
-                      disabled={isPending}
+                      placeholder="e.g. 1250000"
+                      disabled={isPending || isView}
+                      readOnly={isView}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                     {fieldState.error && (
@@ -228,12 +254,13 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="note">Catatan (opsional)</FieldLabel>
+                    <FieldLabel htmlFor="note">Note (optional)</FieldLabel>
                     <Input
                       {...field}
                       id="note"
-                      placeholder="Contoh: Pembayaran supplier"
-                      disabled={isPending}
+                      placeholder="e.g. Supplier payment"
+                      disabled={isPending || isView}
+                      readOnly={isView}
                     />
                     {fieldState.error && (
                       <p className="text-xs text-destructive">
@@ -248,20 +275,37 @@ export function TransactionForm({
 
           <div className="sticky bottom-0 bg-popover">
             <Separator />
-            <div className="flex gap-2 p-4">
-              <Button
-                type="button"
-                variant="ghost"
-                className="flex-1"
-                onClick={() => onOpenChangeAction(false)}
-                disabled={isPending}
-              >
-                Batal
-              </Button>
-              <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? "Menyimpan..." : "Simpan"}
-              </Button>
-            </div>
+            {isView ? (
+              <div className="flex gap-2 p-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 cursor-pointer"
+                  onClick={() => onOpenChangeAction(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 p-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 cursor-pointer"
+                  onClick={() => onOpenChangeAction(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 cursor-pointer"
+                  disabled={isPending}
+                >
+                  {isPending ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            )}
           </div>
         </form>
       </SheetContent>
