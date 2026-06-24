@@ -40,7 +40,7 @@ export function LoginForm({
     const cred = CREDENTIALS[values.username as keyof typeof CREDENTIALS];
 
     if (!cred || cred.password !== values.password) {
-      setAuthError("Username atau password salah");
+      setAuthError("Invalid username or password");
       return;
     }
 
@@ -95,7 +95,7 @@ export function LoginForm({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full"
+                  className="w-full cursor-pointer"
                 >
                   {isSubmitting ? "Logging in..." : "Login"}
                 </Button>

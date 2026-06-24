@@ -8,6 +8,7 @@ import { TransactionTable } from "@/components/pages/transaction/table/Transacti
 import { TransactionForm } from "@/components/pages/transaction/form/TransactionForm";
 import { Navbar } from "@/components/molecules/Navbar";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import type { FilterableStatus } from "@/components/pages/transaction/table/TransactionFilter.schema";
 import type { Transaction } from "@/models/transaction";
 import { LIMIT_OPTIONS, DEFAULT_LIMIT } from "@/lib/constants";
@@ -60,11 +61,16 @@ export function TransactionContent() {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-6 sm:px-0">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-medium">Daftar Transaksi</h2>
+          <h2 className="text-base font-medium">Transaction List</h2>
           <div className="flex items-center gap-2">
             {role === "operator" && (
-              <Button size="sm" onClick={() => setFormOpen(true)}>
-                + Buat Transaksi
+              <Button
+                size="sm"
+                onClick={() => setFormOpen(true)}
+                className="cursor-pointer"
+              >
+                <Plus className="size-4" />
+                Create Transaction
               </Button>
             )}
           </div>

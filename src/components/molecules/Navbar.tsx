@@ -42,7 +42,7 @@ function SearchInput({
     <div className="relative w-full">
       <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
-        placeholder="Cari nama pengirim..."
+        placeholder="Search sender name..."
         defaultValue={search}
         onChange={(e) => onSearchChangeAction(e.target.value)}
         className="pl-8"
@@ -94,18 +94,18 @@ export function Navbar({
   onSearchChangeAction,
   onStatusChangeAction,
 }: NavbarProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(true);
 
   return (
     <Collapsible open={mobileOpen} onOpenChange={setMobileOpen}>
-      <header className={cn("md:border-b px-4 py-3 md:px-6 md:py-4")}>
+      <header className={cn("border-b px-4 pt-3 pb-3 md:px-6 md:py-4")}>
         <div className="mx-auto max-w-7xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CollapsibleTrigger asChild className="md:hidden">
-                <Button variant="outline" size="icon-sm">
+                <Button variant="outline" size="icon-sm" className="cursor-pointer">
                   <Menu className="size-4" />
-                  <span className="sr-only">Buka menu</span>
+                  <span className="sr-only">Open menu</span>
                 </Button>
               </CollapsibleTrigger>
               <h1 className="text-base font-semibold md:text-lg">
@@ -117,7 +117,7 @@ export function Navbar({
               <div className="relative w-[260px]">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Cari nama pengirim..."
+                  placeholder="Search sender name..."
                   defaultValue={search}
                   onChange={(e) => onSearchChangeAction(e.target.value)}
                   className="pl-8"
@@ -136,11 +136,9 @@ export function Navbar({
             </div>
           </div>
         </div>
-      </header>
 
-      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-        <div className="border-b px-4 pb-4 md:hidden">
-          <div className="mx-auto max-w-7xl flex flex-col gap-3">
+        <CollapsibleContent className="overflow-hidden md:hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+          <div className="mx-auto max-w-7xl pt-3 flex flex-col gap-3">
             <SearchInput
               search={search}
               onSearchChangeAction={onSearchChangeAction}
@@ -150,8 +148,8 @@ export function Navbar({
               onFilterChangeAction={onStatusChangeAction}
             />
           </div>
-        </div>
-      </CollapsibleContent>
+        </CollapsibleContent>
+      </header>
     </Collapsible>
   );
 }

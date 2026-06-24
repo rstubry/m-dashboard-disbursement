@@ -85,12 +85,12 @@ export function TransactionForm({
       },
       {
         onSuccess: () => {
-          toast.success("Transaksi berhasil dibuat");
+          toast.success("Transaction created successfully");
           onOpenChangeAction(false);
         },
         onError: (err) => {
           toast.error(
-            err instanceof Error ? err.message : "Gagal membuat transaksi",
+            err instanceof Error ? err.message : "Failed to create transaction",
           );
         },
       },
@@ -108,7 +108,7 @@ export function TransactionForm({
       >
         <SheetHeader className="pb-0!">
           <SheetTitle>
-            {isView ? "Detail Transaksi" : "Buat Transaksi"}
+            {isView ? "Transaction Details" : "Create Transaction"}
           </SheetTitle>
         </SheetHeader>
 
@@ -125,11 +125,11 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="sender_name">Nama Pengirim</FieldLabel>
+                    <FieldLabel htmlFor="sender_name">Sender Name</FieldLabel>
                     <Input
                       {...field}
                       id="sender_name"
-                      placeholder="Contoh: Budi Santoso"
+                      placeholder="e.g. Budi Santoso"
                       disabled={isPending || isView}
                       readOnly={isView}
                     />
@@ -148,12 +148,12 @@ export function TransactionForm({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="account_number">
-                      Nomor Rekening
+                      Account Number
                     </FieldLabel>
                     <Input
                       {...field}
                       id="account_number"
-                      placeholder="Contoh: 1234567890"
+                      placeholder="e.g. 1234567890"
                       disabled={isPending || isView}
                       readOnly={isView}
                     />
@@ -171,14 +171,14 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="bank">Bank Tujuan</FieldLabel>
+                    <FieldLabel htmlFor="bank">Destination Bank</FieldLabel>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
                       disabled={isPending || isView}
                     >
                       <SelectTrigger id="bank">
-                        <SelectValue placeholder="Pilih bank" />
+                        <SelectValue placeholder="Select bank" />
                       </SelectTrigger>
                       <SelectContent>
                         {BANKS.map((b) => (
@@ -202,12 +202,12 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amount">Jumlah Transfer</FieldLabel>
+                    <FieldLabel htmlFor="amount">Transfer Amount</FieldLabel>
                     <Input
                       {...field}
                       id="amount"
                       type="number"
-                      placeholder="Contoh: 1250000"
+                      placeholder="e.g. 1250000"
                       disabled={isPending || isView}
                       readOnly={isView}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
@@ -226,11 +226,11 @@ export function TransactionForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="note">Catatan (opsional)</FieldLabel>
+                    <FieldLabel htmlFor="note">Note (optional)</FieldLabel>
                     <Input
                       {...field}
                       id="note"
-                      placeholder="Contoh: Pembayaran supplier"
+                      placeholder="e.g. Supplier payment"
                       disabled={isPending || isView}
                       readOnly={isView}
                     />
@@ -252,25 +252,25 @@ export function TransactionForm({
                 <Button
                   type="button"
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                   onClick={() => onOpenChangeAction(false)}
                 >
-                  Tutup
+                  Close
                 </Button>
               </div>
             ) : (
               <div className="flex gap-2 p-4">
                 <Button
                   type="button"
-                  variant="ghost"
-                  className="flex-1"
+                  variant="outline"
+                  className="flex-1 cursor-pointer"
                   onClick={() => onOpenChangeAction(false)}
                   disabled={isPending}
                 >
-                  Batal
+                  Cancel
                 </Button>
-                <Button type="submit" className="flex-1" disabled={isPending}>
-                  {isPending ? "Menyimpan..." : "Simpan"}
+                <Button type="submit" className="flex-1 cursor-pointer" disabled={isPending}>
+                  {isPending ? "Saving..." : "Save"}
                 </Button>
               </div>
             )}

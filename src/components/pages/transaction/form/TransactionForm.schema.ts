@@ -6,11 +6,11 @@ export type TransactionFormValues = Omit<CreateTransactionPayload, "admin_fee" |
 export const formSchema = z.object({
   sender_name: z
     .string()
-    .min(3, "Minimal 3 karakter")
-    .max(100, "Maksimal 100 karakter"),
+    .min(3, "Minimum 3 characters")
+    .max(100, "Maximum 100 characters"),
   account_number: z
     .string()
-    .regex(/^\d{6,20}$/, "Nomor rekening harus 6–20 digit angka"),
+    .regex(/^\d{6,20}$/, "Account number must be 6–20 digits"),
   bank: z.enum(
     [
       "BCA",
@@ -23,13 +23,13 @@ export const formSchema = z.object({
       "Danamon",
       "BTN",
     ],
-    { message: "Pilih bank tujuan" },
+    { message: "Select a bank" },
   ),
   amount: z
-    .number({ message: "Harus berupa angka" })
-    .int("Harus angka bulat")
-    .min(10000, "Minimal Rp 10.000"),
-  note: z.string().max(255, "Maksimal 255 karakter"),
+    .number({ message: "Must be a number" })
+    .int("Must be a whole number")
+    .min(10000, "Minimum Rp 10,000"),
+  note: z.string().max(255, "Maximum 255 characters"),
 });
 
 export function calcAdminFee(amount: number): number {

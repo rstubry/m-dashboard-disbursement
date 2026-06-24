@@ -65,7 +65,7 @@ export function TransactionFilter({
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Filter Transaksi</DialogTitle>
+          <DialogTitle>Filter Transactions</DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
@@ -91,10 +91,10 @@ export function TransactionFilter({
             />
           </FieldGroup>
           <DialogFooter className="mt-4 gap-2">
-            <Button type="button" variant="outline" onClick={handleReset}>
+            <Button type="button" variant="outline" onClick={handleReset} className="cursor-pointer">
               Reset
             </Button>
-            <Button type="submit">Terapkan</Button>
+            <Button type="submit" className="cursor-pointer">Apply</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -8,12 +8,12 @@ export const CREDENTIALS = {
 export const schema = z.object({
   username: z
     .string()
-    .min(1, "Username wajib diisi")
-    .refine((v) => v.trim().length > 0, "Tidak boleh spasi saja"),
+    .min(1, "Username is required")
+    .refine((v) => v.trim().length > 0, "Cannot be only spaces"),
   password: z
     .string()
-    .min(1, "Password wajib diisi")
-    .refine((v) => v.trim().length > 0, "Tidak boleh spasi saja"),
+    .min(1, "Password is required")
+    .refine((v) => v.trim().length > 0, "Cannot be only spaces"),
 });
 
 export type FormValues = z.infer<typeof schema>;

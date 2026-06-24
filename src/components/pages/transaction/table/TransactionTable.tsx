@@ -60,12 +60,12 @@ type TransactionTableProps = {
 
 const BASE_COLUMNS = [
   "ID",
-  "Nama Pengirim",
+  "Sender Name",
   "Bank",
-  "Jumlah",
-  "Biaya Admin",
+  "Amount",
+  "Admin Fee",
   "Status",
-  "Tanggal",
+  "Date",
 ];
 
 type ConfirmState = {
@@ -96,7 +96,7 @@ export function TransactionTable({
     transaction: null,
   });
 
-  const columns = [...BASE_COLUMNS, "Aksi"];
+  const columns = [...BASE_COLUMNS, "Actions"];
   const totalPages = Math.ceil(total / limit);
   const from = total === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
@@ -109,14 +109,14 @@ export function TransactionTable({
         onSuccess: () => {
           toast.success(
             confirm.action === "APPROVED"
-              ? "Transaksi berhasil disetujui"
-              : "Transaksi berhasil ditolak",
+              ? "Transaction approved successfully"
+              : "Transaction rejected successfully",
           );
           setConfirm({ open: false, action: null, transaction: null });
         },
         onError: (err) => {
           toast.error(
-            err instanceof Error ? err.message : "Gagal mengupdate status",
+            err instanceof Error ? err.message : "Failed to update status",
           );
           setConfirm({ open: false, action: null, transaction: null });
         },
@@ -148,10 +148,10 @@ export function TransactionTable({
       <div className="flex h-40 items-center justify-center rounded-md border">
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <TriangleAlert className="size-8 opacity-40" />
-          <span className="text-sm">Gagal memuat data. Silakan coba lagi.</span>
+          <span className="text-sm">Failed to load data. Please try again.</span>
           {hasFilter && (
             <span className="text-xs text-muted-foreground/70">
-              Coba periksa kembali filter atau ubah kata kunci pencarian.
+              Check your filters or try a different search keyword.
             </span>
           )}
         </div>
@@ -191,7 +191,7 @@ export function TransactionTable({
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <SearchX className="size-8 opacity-40" />
                       <span className="text-sm">
-                        Tidak ada transaksi ditemukan.
+                        No transactions found.
                       </span>
                     </div>
                   </TableCell>
@@ -216,9 +216,9 @@ export function TransactionTable({
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon-sm">
+                          <Button variant="ghost" size="icon-sm" className="cursor-pointer">
                             <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">Aksi</span>
+                            <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -235,7 +235,7 @@ export function TransactionTable({
                                 }
                               >
                                 <CheckCircle size={16} className="mr-1" />
-                                Setujui
+                                Approve
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
@@ -248,7 +248,7 @@ export function TransactionTable({
                                 }
                               >
                                 <XCircle size={16} className="mr-1" />
-                                Tolak
+                                Reject
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                             </>
@@ -258,7 +258,7 @@ export function TransactionTable({
                             onClick={() => onRowClickAction(row)}
                           >
                             <Eye size={16} className="mr-1" />
-                            Detail
+                            Details
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -274,11 +274,11 @@ export function TransactionTable({
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground sm:justify-start">
             <span className="whitespace-nowrap">
               {total === 0
-                ? "Tidak ada transaksi"
-                : `Menampilkan ${from}–${to} dari ${total} transaksi`}
+                ? "No transactions"
+                : `Showing ${from}–${to} of ${total} transactions`}
             </span>
             <div className="flex items-center gap-1.5 whitespace-nowrap">
-              <span>Tampilkan</span>
+              <span>Show</span>
               <select
                 value={limit}
                 onChange={(e) => onLimitChangeAction(Number(e.target.value))}
@@ -290,7 +290,7 @@ export function TransactionTable({
                   </option>
                 ))}
               </select>
-              <span>baris</span>
+              <span>rows</span>
             </div>
           </div>
 
@@ -359,15 +359,15 @@ export function TransactionTable({
         open={confirm.open}
         title={
           confirm.action === "APPROVED"
-            ? "Setujui Transaksi"
-            : "Tolak Transaksi"
+            ? "Approve Transaction"
+            : "Reject Transaction"
         }
         description={
           confirm.action === "APPROVED"
-            ? "Transaksi ini akan disetujui. Tindakan ini tidak dapat dibatalkan."
-            : "Transaksi ini akan ditolak. Tindakan ini tidak dapat dibatalkan."
+            ? "This transaction will be approved. This action cannot be undone."
+            : "This transaction will be rejected. This action cannot be undone."
         }
-        confirmLabel={confirm.action === "APPROVED" ? "Setujui" : "Tolak"}
+        confirmLabel={confirm.action === "APPROVED" ? "Approve" : "Reject"}
         confirmVariant={
           confirm.action === "REJECTED" ? "destructive" : "default"
         }

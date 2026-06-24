@@ -9,7 +9,7 @@ export const DEFAULT_LIMIT = 10;
 export const MAX_VISIBLE_PAGES = 5;
 
 export const STATUS_OPTIONS: { label: string; value: TransactionStatus | "" }[] = [
-  { label: "Semua Status", value: "" },
+  { label: "All Status", value: "" },
   { label: "Pending", value: "PENDING" },
   { label: "Success", value: "SUCCESS" },
   { label: "Failed", value: "FAILED" },
