@@ -102,7 +102,10 @@ export function TransactionForm({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChangeAction}>
-      <SheetContent side="right" className="overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-full! overflow-y-auto sm:max-w-sm"
+      >
         <SheetHeader className="pb-0!">
           <SheetTitle>
             {isView ? "Detail Transaksi" : "Buat Transaksi"}

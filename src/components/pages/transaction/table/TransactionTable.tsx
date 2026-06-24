@@ -270,14 +270,14 @@ export function TransactionTable({
           </Table>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span>
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground sm:justify-start">
+            <span className="whitespace-nowrap">
               {total === 0
                 ? "Tidak ada transaksi"
                 : `Menampilkan ${from}–${to} dari ${total} transaksi`}
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
               <span>Tampilkan</span>
               <select
                 value={limit}
@@ -295,7 +295,7 @@ export function TransactionTable({
           </div>
 
           {totalPages > 1 && (
-            <Pagination>
+            <Pagination className="mx-0 sm:mx-auto sm:justify-end">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
