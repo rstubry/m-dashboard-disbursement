@@ -20,17 +20,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatRupiah, formatDate } from "@/lib/utils";
-import type { Transaction, TransactionStatus } from "@/models/transaction";
+import { STATUS_VARIANT } from "@/lib/constants";
+import type { Transaction } from "@/models/transaction";
 
 const MAX_VISIBLE_PAGES = 5;
 
-const STATUS_VARIANT: Record<TransactionStatus, "default" | "outline" | "destructive"> = {
-  PENDING: "outline",
-  SUCCESS: "default",
-  FAILED: "destructive",
-  APPROVED: "default",
-  REJECTED: "destructive",
-};
 
 type TransactionTableProps = {
   data: Transaction[];
