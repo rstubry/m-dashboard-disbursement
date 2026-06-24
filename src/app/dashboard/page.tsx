@@ -10,9 +10,8 @@ import { TransactionFilter } from "@/components/TransactionFilter";
 import { TransactionForm } from "@/components/TransactionForm";
 import { Button } from "@/components/ui/button";
 import type { FilterableStatus } from "@/components/TransactionFilter";
-
-const LIMIT_OPTIONS = [10, 25, 50];
-const DEFAULT_LIMIT = 10;
+import type { Transaction } from "@/models/transaction";
+import { LIMIT_OPTIONS, DEFAULT_LIMIT } from "@/lib/constants";
 
 function DashboardContent() {
   const router = useRouter();
@@ -25,6 +24,8 @@ function DashboardContent() {
   const status = getParam("status") as FilterableStatus;
 
   const [formOpen, setFormOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const { data, isLoading, isError } = useGetTransactions({
     page,
