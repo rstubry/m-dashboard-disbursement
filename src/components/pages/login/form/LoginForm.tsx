@@ -8,11 +8,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { encodeJWT, setAuthCookie } from "@/lib/jwt";
-import {
-  type FormValues,
-  schema,
-  CREDENTIALS,
-} from "./LoginForm.schema";
+import { type FormValues, schema, CREDENTIALS } from "./LoginForm.schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -50,7 +46,9 @@ export function LoginForm({
     const token = encodeJWT({ username: values.username, role: cred.role });
     setAuthCookie(token);
     toast.success(`Welcome back, ${values.username}!`);
-    requestAnimationFrame(() => requestAnimationFrame(() => router.push("/dashboard")));
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => router.push("/dashboard")),
+    );
   }
 
   return (
@@ -96,7 +94,11 @@ export function LoginForm({
                     className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
                     tabIndex={-1}
                   >
-                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    {showPassword ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
                   </button>
                 </div>
                 {errors.password && (
