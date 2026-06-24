@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mini Dashboard Disbursement
+
+Fintech disbursement dashboard for two roles: **operator** (create transactions) and **admin** (approve/reject).
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Login Credentials
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Username   | Password      | Role     |
+|-----------|---------------|----------|
+| admin     | admin123      | admin    |
+| operator  | operator123   | operator |
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: Next.js 16 (App Router) + React 19
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 4
+- **State/Server**: TanStack Query v5, React Hook Form + Zod
+- **HTTP**: Axios (with 401 interceptor)
+- **Auth**: Fake JWT (encode/decode via custom lib)
+- **UI Primitives**: Radix UI (Dialog, Select, Sheet, Collapsible, Dropdown Menu, Avatar)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Implemented Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Core
+- ✅ Login form with Zod validation + JWT auth
+- ✅ Protected routes via `proxy.ts` + 401 Axios interceptor
+- ✅ Transaction list with server-side pagination, search (debounce 400ms), status filter
+- ✅ Create transaction form (operator only) — 5 fields + admin fee auto-calc
+- ✅ Update status via approve/reject (admin only) with confirmation dialog
+- ✅ Transaction detail modal (click row → Sheet with all fields)
+- ✅ URL state persistence — filters survive refresh
+- ✅ Role-based UI — buttons hidden (not disabled) per role
+- ✅ Loading (skeleton), empty, and error states all handled
 
-## Deploy on Vercel
+### Bonus
+- ✅ Mobile responsive (collapsible navbar, centered pagination, full-width sheets)
+- ✅ Skeleton loading during data fetch
+- ✅ Server-side sort — clickable table headers with sort direction indicators
+- ✅ CSV export — download filtered data with timestamped filename
+- ✅ URL filter persistence
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Configure `NEXT_PUBLIC_API_BASE_URL` in `.env`. See `.env.example`.
+
+| Method | Endpoint            | Description          |
+|--------|---------------------|----------------------|
+| GET    | /transactions       | List + filter + paginate |
+| POST   | /transactions       | Create transaction   |
+| PUT    | /transactions/:id   | Update status        |
+
+## Project Structure
+
+```
+src/
+├── api/                  # Axios instance + API functions
+├── app/                  # Next.js App Router pages
+│   ├── dashboard/        # Protected dashboard
+│   └── login/            # Login page
+├── components/
+│   ├── molecules/        # Navbar, ConfirmDialog
+│   ├── pages/            # Page components
+│   │   ├── login/        # LoginForm
+│   │   └── transaction/  # TransactionTable, TransactionFilter, TransactionForm
+│   └── ui/               # UI primitives (Badge, Button, Sheet, Dialog, etc.)
+├── hooks/                # useAuth, useFilters, useTransactions
+├── lib/                  # utils, jwt, constants
+├── models/               # TypeScript types
+└── proxy.ts              # Route protection
+```
+
+## Scripts
+
+| Command             | Description              |
+|---------------------|--------------------------|
+| `npm run dev`       | Start dev server         |
+| `npm run build`     | Production build         |
+| `npm run lint`      | ESLint                   |
+| `npm run typecheck` | TypeScript check         |
+
+## Docker
+
+```bash
+# Build and start
+make build
+
+# Start
+make up
+
+# View logs
+make logs
+
+# Stop
+make down
+```
+
+Or directly with Docker Compose:
+
+```bash
+docker compose up -d --build
+```
+
+Configure the API base URL via `NEXT_PUBLIC_API_BASE_URL` in `.env`.
+
+## Notes
+
+- Authentication is simulated with fake JWT stored in cookie — not for production use.
+- 401 interceptor is implemented even though the mock API never returns 401.
+- Admin fee: Rp 2,500 if amount &lt; 5M, Rp 5,000 if amount ≥ 5M.
+- Status auto-set to `PENDING` on create.
+- All UI strings are in English.
