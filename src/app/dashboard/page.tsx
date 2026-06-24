@@ -7,7 +7,8 @@ import { useFilters } from "@/hooks/useFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { TransactionTable } from "@/components/TransactionTable";
 import { TransactionFilter } from "@/components/TransactionFilter";
-import type { Transaction } from "@/models/transaction";
+import { TransactionForm } from "@/components/TransactionForm";
+import { Button } from "@/components/ui/button";
 import type { FilterableStatus } from "@/components/TransactionFilter";
 
 const LIMIT_OPTIONS = [10, 25, 50];
@@ -23,8 +24,7 @@ function DashboardContent() {
   const search = getParam("search");
   const status = getParam("status") as FilterableStatus;
 
-  const [_selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
 
   const { data, isLoading, isError } = useGetTransactions({
     page,
@@ -33,10 +33,7 @@ function DashboardContent() {
     ...(status && { status }),
   });
 
-  function handleFilterApply(
-    newSearch: string,
-    newStatus: FilterableStatus,
-  ) {
+  function handleFilterApply(newSearch: string, newStatus: FilterableStatus) {
     updateFilters({ search: newSearch, status: newStatus, page: "1" });
   }
 
@@ -72,14 +69,21 @@ function DashboardContent() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 sm:px-0 py-6">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-6 sm:px-0">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-medium">Daftar Transaksi</h2>
-          <TransactionFilter
-            search={search}
-            status={status}
-            onFilterChangeAction={handleFilterApply}
-          />
+          <div className="flex items-center gap-2">
+            {role === "operator" && (
+              <Button size="sm" onClick={() => setFormOpen(true)}>
+                + Buat Transaksi
+              </Button>
+            )}
+            <TransactionFilter
+              search={search}
+              status={status}
+              onFilterChangeAction={handleFilterApply}
+            />
+          </div>
         </div>
 
         <TransactionTable
@@ -90,11 +94,19 @@ function DashboardContent() {
           limitOptions={LIMIT_OPTIONS}
           isLoading={isLoading}
           isError={isError}
+          isAdmin={role === "admin"}
           onPageChangeAction={handlePageChange}
           onLimitChangeAction={handleLimitChange}
-          onRowClickAction={setSelectedTransaction}
         />
       </main>
+
+      {role === "operator" && (
+        <TransactionForm
+          open={formOpen}
+          onOpenChangeAction={setFormOpen}
+          type="ADD"
+        />
+      )}
     </div>
   );
 }
