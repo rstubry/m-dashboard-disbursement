@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/select";
 import { useCreateTransaction } from "@/hooks/useTransactions";
 import { BANKS } from "@/lib/constants";
+import { formatRupiah, formatDate, formatTitleCase } from "@/lib/utils";
+import { STATUS_CLASS } from "@/lib/constants";
+import { Badge } from "@/components/ui/badge";
 import type { Transaction } from "@/models/transaction";
 import {
   type TransactionFormValues,
@@ -113,6 +116,31 @@ export function TransactionForm({
         </SheetHeader>
 
         <Separator />
+
+        {isView && transaction && (
+          <div className="px-4 pt-2 space-y-3">
+            <Field>
+              <FieldLabel>Transaction ID</FieldLabel>
+              <p className="text-sm font-mono">{transaction.id}</p>
+            </Field>
+            <Field>
+              <FieldLabel>Admin Fee</FieldLabel>
+              <p className="text-sm">{formatRupiah(transaction.admin_fee)}</p>
+            </Field>
+            <Field>
+              <FieldLabel>Status</FieldLabel>
+              <Badge className={`${STATUS_CLASS[transaction.status]} w-max!`}>
+                <span className="mr-0.5 inline-flex size-2 rounded-full bg-current opacity-70" />
+                {formatTitleCase(transaction.status)}
+              </Badge>
+            </Field>
+            <Field>
+              <FieldLabel>Date</FieldLabel>
+              <p className="text-sm">{formatDate(transaction.created_at)}</p>
+            </Field>
+            <Separator />
+          </div>
+        )}
 
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -269,7 +297,11 @@ export function TransactionForm({
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="flex-1 cursor-pointer" disabled={isPending}>
+                <Button
+                  type="submit"
+                  className="flex-1 cursor-pointer"
+                  disabled={isPending}
+                >
                   {isPending ? "Saving..." : "Save"}
                 </Button>
               </div>
