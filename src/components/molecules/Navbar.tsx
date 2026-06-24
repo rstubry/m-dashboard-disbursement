@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import { LogOut, Search, Menu } from "lucide-react";
 import type { FilterableStatus } from "@/components/pages/transaction/table/TransactionFilter.schema";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,7 @@ function UserMenu({ role }: { role: string | null }) {
 
   function handleLogout() {
     document.cookie = "token=; path=/; max-age=0";
+    toast.success("Logged out successfully");
     router.push("/login");
   }
 

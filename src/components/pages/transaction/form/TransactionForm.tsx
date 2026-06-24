@@ -228,25 +228,43 @@ export function TransactionForm({
               <Controller
                 name="amount"
                 control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel htmlFor="amount">Transfer Amount</FieldLabel>
-                    <Input
-                      {...field}
-                      id="amount"
-                      type="number"
-                      placeholder="e.g. 1250000"
-                      disabled={isPending || isView}
-                      readOnly={isView}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                    {fieldState.error && (
-                      <p className="text-xs text-destructive">
-                        {fieldState.error.message}
-                      </p>
-                    )}
-                  </Field>
-                )}
+                render={({ field, fieldState }) => {
+                  const displayValue = field.value
+                    ? field.value.toLocaleString("id-ID")
+                    : "";
+                  return (
+                    <Field>
+                      <FieldLabel htmlFor="amount">Transfer Amount</FieldLabel>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none select-none">
+                          Rp
+                        </span>
+                        <Input
+                          id="amount"
+                          type="text"
+                          inputMode="numeric"
+                          name={field.name}
+                          ref={field.ref}
+                          onBlur={field.onBlur}
+                          value={displayValue}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/\D/g, "");
+                            field.onChange(raw ? Number(raw) : 0);
+                          }}
+                          placeholder="e.g. 1.250.000"
+                          disabled={isPending || isView}
+                          readOnly={isView}
+                          className="pl-10"
+                        />
+                      </div>
+                      {fieldState.error && (
+                        <p className="text-xs text-destructive">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </Field>
+                  );
+                }}
               />
 
               <Controller
